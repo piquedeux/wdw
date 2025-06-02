@@ -1,183 +1,294 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Make a Wish</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      background: #ccc;
-      font-family: 'Courier New', monospace;
-      color: rgb(0, 102, 255);
-      margin: 0;
-      padding: 20px;
-    }
-    .console-window {
-      max-width: 600px;
-      margin: auto;
-      background: #eee;
-      padding: 20px;
-      border: 2px solid #999;
-      box-shadow: 4px 4px 0 #888;
-    }
-    h1 {
-      margin-top: 0;
-      font-size: 2em;
-      letter-spacing: -1px;
-    }
-    button {
-      font-family: inherit;
-      padding: 10px 20px;
-      background: rgb(0, 102, 255);
-      color: white;
-      border: none;
-      box-shadow: 2px 2px 0 #444;
-      cursor: pointer;
-    }
-    input[type="text"] {
-      font-family: inherit;
-      padding: 8px;
-      margin-right: 10px;
-    }
-    #gallery {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .gallery-item {
-      background: white;
-      padding: 5px;
-      border: 1px solid #aaa;
-      box-shadow: 2px 2px 0 #666;
-    }
-    .gallery-item img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-    }
-    .timestamp {
-      font-size: 0.9em;
-      color: black;
-      margin-top: 5px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Wish Time</title>
+<style>
+  body {
+    background: #d3d3d3;
+    font-family: 'Courier New', Courier, monospace;
+    color: rgb(0, 0, 180);
+    margin: 0; padding: 1rem;
+    user-select: none;
+  }
+  .console-window {
+    max-width: 480px;
+    margin: auto;
+    background: #eee;
+    padding: 1rem;
+    border: 3px solid rgb(0,0,180);
+    box-shadow: 4px 4px rgb(0,0,130);
+  }
+  h1 {
+    margin-top: 0;
+    font-weight: bold;
+    letter-spacing: -0.1em;
+  }
+  #clock {
+    font-weight: bold;
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+  input[type="text"] {
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 1rem;
+    padding: 0.25rem;
+    width: 100%;
+    box-sizing: border-box;
+    margin-bottom: 0.5rem;
+    border: 2px solid rgb(0,0,180);
+  }
+  button {
+    background: rgb(0,0,180);
+    color: white;
+    font-weight: bold;
+    font-family: monospace;
+    border: none;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    box-shadow: 2px 2px rgb(0,0,130);
+    user-select: none;
+  }
+  button:hover {
+    background: rgb(0,0,150);
+  }
+  #uploadStatus {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  #inputWrapper input[type="file"] {
+    font-family: monospace;
+    font-weight: bold;
+    border: 2px solid rgb(0,0,180);
+    padding: 0.25rem;
+    cursor: pointer;
+    box-shadow: 2px 2px rgb(0,0,130);
+    background: white;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  #gallerySection {
+    margin-top: 1.5rem;
+  }
+  #gallerySection h2 {
+    font-weight: bold;
+    letter-spacing: -0.1em;
+  }
+  #gallery {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .gallery-item {
+    background: white;
+    border: 2px solid rgb(0,0,180);
+    box-shadow: 2px 2px rgb(0,0,130);
+    padding: 0.25rem;
+    width: 120px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: normal;
+    font-size: 0.85rem;
+    color: rgba(255 255 255 / 0.8);
+    position: relative;
+  }
+  .gallery-item img {
+    width: 100%;
+    display: block;
+  }
+  .gallery-item .time-below {
+    color: black;
+    text-align: center;
+    margin-top: 0.25rem;
+    font-family: Helvetica, Arial, sans-serif;
+    font-weight: normal;
+    font-size: 0.9rem;
+    letter-spacing: -0.05em;
+  }
+</style>
 </head>
 <body>
   <div class="console-window">
-    <h1>Make a Wish</h1>
-    <p id="clock">--:--:--</p>
+    <h1>Wish Time</h1>
+    <p id="clock"></p>
 
     <div id="nameInputContainer">
-      <input type="text" id="username" placeholder="Your name">
+      <label for="username">Your Name:</label>
+      <input type="text" id="username" placeholder="e.g. Moonchild" />
       <button onclick="saveName()">Start</button>
     </div>
 
     <div id="uploadSection" style="display:none;">
-      <p id="uploadStatus">Upload a photo now</p>
-      <input type="file" accept="image/*" capture="environment" id="photoInput" onchange="handlePhoto(event)">
+      <p id="uploadStatus">Upload your wish photo!</p>
+      <div id="inputWrapper"></div>
     </div>
 
     <div id="gallerySection" style="display:none;">
-      <h2>Gallery (last 24h)</h2>
+      <h2>Wish Photos (last 24h)</h2>
       <div id="gallery"></div>
     </div>
   </div>
 
-  <script>
-    const uploadSection = document.getElementById('uploadSection');
-    const gallerySection = document.getElementById('gallerySection');
-    const gallery = document.getElementById('gallery');
-    const clock = document.getElementById('clock');
+<script>
+  const clock = document.getElementById('clock');
+  const nameInputContainer = document.getElementById('nameInputContainer');
+  const uploadSection = document.getElementById('uploadSection');
+  const statusText = document.getElementById('uploadStatus');
+  const gallerySection = document.getElementById('gallerySection');
+  const gallery = document.getElementById('gallery');
+  const inputWrapper = document.getElementById('inputWrapper');
 
-    function updateClock() {
-      const now = new Date();
-      clock.textContent = now.toLocaleTimeString('en-GB');
+  function updateClock() {
+    const now = new Date();
+    clock.textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+  setInterval(updateClock, 1000);
+
+  function saveName() {
+    const name = document.getElementById('username').value.trim();
+    if (name) {
+      localStorage.setItem('wish_name', name);
+      nameInputContainer.style.display = 'none';
+      uploadSection.style.display = 'block';
+      createFileInput();
+      showGallery();
     }
-    setInterval(updateClock, 1000);
+  }
 
-    function saveName() {
-      const name = document.getElementById('username').value.trim();
-      if (name) {
-        localStorage.setItem('wish_name', name);
-        document.getElementById('nameInputContainer').style.display = 'none';
-        uploadSection.style.display = 'block';
-        checkGallery();
-      }
+  function isWishTime() {
+    // for testing, always true, replace with your own rules
+    return true;
+  }
+
+  function createFileInput() {
+    inputWrapper.innerHTML = '';
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.capture = 'environment';
+    input.onchange = handlePhoto;
+    inputWrapper.appendChild(input);
+  }
+
+  function handlePhoto(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!isWishTime()) {
+      alert("You can only upload at special times!");
+      return;
     }
 
-    function handlePhoto(event) {
-      const file = event.target.files[0];
-      if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      // create an image to manipulate canvas
+      const img = new Image();
+      img.onload = () => {
+        // create canvas same size as image
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = img.width;
+        canvas.height = img.height;
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const dataUrl = e.target.result;
+        // mirror image horizontally
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(img, 0, 0);
+
+        // add time stamp bottom right
         const now = new Date();
+        const timeText = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+        ctx.font = `${Math.floor(canvas.height / 15)}px Helvetica, Arial, sans-serif`;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+
+        // letter spacing simulation by drawing chars spaced out (negative letter spacing)
+        const letters = timeText.split('');
+        let x = canvas.width - 10; // 10px from right edge
+        const y = canvas.height - 10; // 10px from bottom edge
+        const letterSpacing = -0.75 * ctx.measureText(' ').width; // negative spacing approx
+
+        // draw from right to left applying negative letter spacing
+        for (let i = letters.length - 1; i >= 0; i--) {
+          ctx.fillText(letters[i], x, y);
+          x -= ctx.measureText(letters[i]).width + letterSpacing;
+        }
+
+        // save new image
+        const dataUrl = canvas.toDataURL('image/jpeg');
+
+        // save with timestamp
         const entry = {
           src: dataUrl,
-          time: now.toLocaleTimeString('en-GB'),
+          time: timeText,
           timestamp: now.getTime()
         };
 
         const photos = getPhotos();
         photos.push(entry);
-        localStorage.setItem("wish_photos", JSON.stringify(photos));
-        checkGallery();
-      };
-      reader.readAsDataURL(file);
-
-      event.target.value = "";
-    }
-
-    function getPhotos() {
-      const photos = JSON.parse(localStorage.getItem("wish_photos") || "[]");
-      const now = Date.now();
-      const day = 24 * 60 * 60 * 1000;
-      const filtered = photos.filter(p => now - p.timestamp < day);
-      localStorage.setItem("wish_photos", JSON.stringify(filtered));
-      return filtered;
-    }
-
-    function checkGallery() {
-      const photos = getPhotos();
-      if (photos.length > 0) {
-        gallerySection.style.display = 'block';
+        localStorage.setItem('wish_photos', JSON.stringify(photos));
         showGallery();
-      } else {
-        gallerySection.style.display = 'none';
-      }
-    }
-
-    function showGallery() {
-      const photos = getPhotos();
-      gallery.innerHTML = "";
-      photos.forEach(p => {
-        const wrapper = document.createElement("div");
-        wrapper.className = "gallery-item";
-
-        const img = document.createElement("img");
-        img.src = p.src;
-
-        const stamp = document.createElement("div");
-        stamp.className = "timestamp";
-        stamp.textContent = `Time: ${p.time}`;
-
-        wrapper.appendChild(img);
-        wrapper.appendChild(stamp);
-        gallery.appendChild(wrapper);
-      });
-    }
-
-    window.onload = () => {
-      const name = localStorage.getItem('wish_name');
-      if (name) {
-        document.getElementById('nameInputContainer').style.display = 'none';
-        uploadSection.style.display = 'block';
-        checkGallery();
-      }
-      updateClock();
+        createFileInput();
+      };
+      img.src = e.target.result;
     };
-  </script>
+    reader.readAsDataURL(file);
+  }
+
+  function getPhotos() {
+    const data = JSON.parse(localStorage.getItem('wish_photos') || '[]');
+    const now = Date.now();
+    const day = 24 * 60 * 60 * 1000;
+    return data.filter(p => now - p.timestamp < day);
+  }
+
+  function showGallery() {
+    const photos = getPhotos();
+    gallery.innerHTML = '';
+    if (photos.length === 0) {
+      gallerySection.style.display = 'none';
+      return;
+    }
+
+    gallerySection.style.display = 'block';
+    photos.forEach(p => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'gallery-item';
+
+      const img = document.createElement('img');
+      img.src = p.src;
+      img.alt = 'Wish photo';
+
+      const time = document.createElement('div');
+      time.className = 'time-below';
+      time.textContent = p.time;
+
+      wrapper.appendChild(img);
+      wrapper.appendChild(time);
+      gallery.appendChild(wrapper);
+    });
+  }
+
+  // On load check if name stored
+  window.onload = () => {
+    const savedName = localStorage.getItem('wish_name');
+    if (savedName) {
+      document.getElementById('username').value = savedName;
+      nameInputContainer.style.display = 'none';
+      uploadSection.style.display = 'block';
+      createFileInput();
+      showGallery();
+    }
+    updateClock();
+  };
+</script>
 </body>
 </html>
