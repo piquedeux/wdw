@@ -1,0 +1,61 @@
+body {
+  background-color: #ddd;
+  color: rgb(0, 102, 204);
+  font-family: "Courier New", Courier, monospace;
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.console-window {
+  width: 100%;
+  max-width: 600px;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+input[type="text"], input[type="file"], button {
+  font-family: inherit;
+  font-size: 1rem;
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.5rem;
+  border: 1px solid rgb(0, 102, 204);
+  background-color: #f0f0f0;
+  color: rgb(0, 102, 204);
+  box-shadow: 2px 2px 0 rgb(0, 102, 204);
+}
+
+button {
+  cursor: pointer;
+}
+
+#gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.gallery-item {
+  position: relative;
+  width: 100%;
+}
+
+.gallery-item img {
+  width: 100%;
+  display: block;
+  border: 2px solid rgb(0, 102, 204);
+}
+
+.timestamp {
+  position: absolute;
+  bottom: 5px;
+  right: 10px;
+  font-size: 0.85rem;
+  color: white;
+  text-shadow: 1px 1px 2px black;
+}

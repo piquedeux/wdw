@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Wünsch Dir Was</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="console-window">
+    <h1>Wünsch Dir Was</h1>
+    <p id="clock"></p>
+
+    <div id="nameInputContainer">
+      <label for="username">Dein Name:</label>
+      <input type="text" id="username" placeholder="z. B. Mondkind">
+      <button onclick="saveName()">Start</button>
+    </div>
+
+    <div id="uploadSection" style="display:none;">
+      <p id="uploadStatus">Nur zu Wunschzeiten!</p>
+      <input type="file" accept="image/*" capture="environment" id="photoInput" onchange="handlePhoto(event)">
+    </div>
+
+    <div id="gallerySection" style="display:none;">
+      <h2>Deine Wunschbilder (letzte 24h)</h2>
+      <div id="gallery"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
