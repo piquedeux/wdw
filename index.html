@@ -147,7 +147,6 @@
       <button id="uploadUnlockBtn" onclick="unlockUpload()">Upload to unlock</button>
     </div>
   </div>
-
 <script>
   const usernameInput = document.getElementById('username');
   const nameInputContainer = document.getElementById('nameInputContainer');
@@ -186,21 +185,35 @@
   };
 
   function isUploadTime() {
-    return true;
+    const now = new Date();
+    const h = now.getHours().toString().padStart(2, '0');
+    const m = now.getMinutes().toString().padStart(2, '0');
+
+    const timeStr = `${h}:${m}`;
+    const allowedExact = [
+      "00:00", "01:01", "02:02", "03:03", "04:04", "05:05",
+      "06:06", "07:07", "08:08", "09:09", "10:10", "11:11",
+      "12:12", "13:13", "14:14", "15:15", "16:16", "17:17",
+      "18:18", "19:19", "20:20", "21:21", "22:22", "23:23",
+      "11:22", "22:11", "22:33", "11:33", "22:44", "11:44"
+    ];
+    return allowedExact.includes(timeStr);
   }
 
   photoInput.addEventListener('change', async (event) => {
     if (!isUploadTime()) {
-      alert("Upload is only available at magical times!");
+      alert("Upload is only allowed at special times!");
       photoInput.value = '';
       return;
     }
+
     const file = event.target.files[0];
     if (!file) return;
 
     const img = new Image();
     const reader = new FileReader();
-    reader.onload = async function(e) {
+
+    reader.onload = async function (e) {
       img.onload = async () => {
         const canvas = document.createElement('canvas');
         const MAX_WIDTH = 800;
@@ -209,7 +222,7 @@
         canvas.height = img.height * scale;
         const ctx = canvas.getContext('2d');
 
-        // Mirror image
+        // Mirror
         ctx.translate(canvas.width, 0);
         ctx.scale(-1, 1);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
@@ -217,19 +230,19 @@
         // Reset transform
         ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-        // Add text stamps
+        // Stamp
         const name = localStorage.getItem('wish_username') || "Unknown";
         const now = new Date();
         const time = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
-        ctx.font = 'bold 36px Helvetica, Arial';
+        ctx.font = 'bold 64px Helvetica, Arial';
         ctx.fillStyle = 'white';
-        ctx.globalAlpha = 0.5;
-        ctx.fillText(name, 20, canvas.height - 20);
-        ctx.fillText(time, canvas.width - 140, canvas.height - 20);
+        ctx.globalAlpha = 0.8;
+        ctx.fillText(name, 40, canvas.height - 60);
+        ctx.fillText(time, canvas.width - 280, canvas.height - 60);
         ctx.globalAlpha = 1;
 
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8); // compress
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
         const entry = {
           src: compressedDataUrl,
           timestamp: now.getTime(),
@@ -254,7 +267,6 @@
     let photos = JSON.parse(localStorage.getItem("wish_photos") || "[]");
     const now = Date.now();
 
-    // Keep only photos from last 24 hours
     photos = photos.filter(p => now - p.timestamp < 24 * 60 * 60 * 1000);
     localStorage.setItem("wish_photos", JSON.stringify(photos));
 
@@ -281,31 +293,41 @@
       uploadSection.style.display = 'none';
     }
 
-photos.forEach((p, index) => {
-  const wrapper = document.createElement("div");
-  wrapper.className = "photo-frame";
+    photos.forEach((p, index) => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "photo-frame";
 
-  const img = document.createElement("img");
-  img.src = p.src;
-  wrapper.appendChild(img);
+      const img = document.createElement("img");
+      img.src = p.src;
+      wrapper.appendChild(img);
 
-dlBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-  const newTab = window.open();
-  if (newTab) {
-    newTab.document.body.style.margin = "0";
-    newTab.document.body.style.background = "#000";
-    newTab.document.body.innerHTML = `
-      <img src="${p.src}" style="width:100%;height:auto;display:block;margin:auto;" />
-      <p style="color:white;text-align:center;font-family:monospace;margin:20px;">Press and hold to save</p>
-    `;
-  } else {
-    alert("Popup blocked! Please allow popups for this site.");
-  }
-});
+      const stampContainer = document.createElement("div");
+      stampContainer.className = "stamp-container";
+      stampContainer.innerHTML = `
+        <div>#${index + 1}</div>
+        <div>${p.readable}</div>
+        <button id="downloadBtn">Open</button>
+      `;
 
-  gallery.appendChild(wrapper);
-});
+      const dlBtn = stampContainer.querySelector("#downloadBtn");
+      dlBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        const newTab = window.open();
+        if (newTab) {
+          newTab.document.body.style.margin = "0";
+          newTab.document.body.style.background = "#000";
+          newTab.document.body.innerHTML = `
+            <img src="${p.src}" style="width:100%;height:auto;display:block;margin:auto;" />
+            <p style="color:white;text-align:center;font-family:monospace;margin:20px;">Press and hold to save</p>
+          `;
+        } else {
+          alert("Popup blocked! Please allow popups for this site.");
+        }
+      });
+
+      wrapper.appendChild(stampContainer);
+      gallery.appendChild(wrapper);
+    });
 
     if (justUploaded) {
       lastUploadTime = Date.now();
@@ -317,7 +339,7 @@ dlBtn.addEventListener("click", (e) => {
 
   function unlockUpload() {
     if (!isUploadTime()) {
-      alert("Upload is only available at magical times.");
+      alert("Upload is only allowed at magical times.");
       return;
     }
     uploadSection.style.display = 'block';
