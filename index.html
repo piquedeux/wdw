@@ -146,195 +146,180 @@
     </div>
   </div>
 
-  <script>
-    const usernameInput = document.getElementById('username');
-    const nameInputContainer = document.getElementById('nameInputContainer');
-    const uploadSection = document.getElementById('uploadSection');
-    const photoInput = document.getElementById('photoInput');
-    const gallery = document.getElementById('gallery');
-    const gallerySection = document.getElementById('gallerySection');
-    const clock = document.getElementById('clock');
-    const uploadUnlockBtn = document.getElementById('uploadUnlockBtn');
+<script>
+  const usernameInput = document.getElementById('username');
+  const nameInputContainer = document.getElementById('nameInputContainer');
+  const uploadSection = document.getElementById('uploadSection');
+  const photoInput = document.getElementById('photoInput');
+  const gallery = document.getElementById('gallery');
+  const gallerySection = document.getElementById('gallerySection');
+  const clock = document.getElementById('clock');
+  const uploadUnlockBtn = document.getElementById('uploadUnlockBtn');
 
-    let lastUploadTime = null;
+  let lastUploadTime = null;
 
-    function updateClock() {
-      const now = new Date();
-      clock.textContent = now.toLocaleTimeString('en-GB');
+  function updateClock() {
+    const now = new Date();
+    clock.textContent = now.toLocaleTimeString('en-GB');
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  function saveName() {
+    const name = usernameInput.value.trim();
+    if (name) {
+      localStorage.setItem('wish_username', name);
+      nameInputContainer.style.display = 'none';
+      uploadSection.style.display = 'block';
     }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    function saveName() {
-      const name = usernameInput.value.trim();
-      if (name) {
-        localStorage.setItem('wish_username', name);
-        nameInputContainer.style.display = 'none';
-        uploadSection.style.display = 'block';
-      }
-    }
-
-    window.onload = () => {
-      const savedName = localStorage.getItem('wish_username');
-      if (savedName) {
-        nameInputContainer.style.display = 'none';
-        uploadSection.style.display = 'block';
-      }
-      loadGallery();
-    };
-    
-function isUploadTime() {
-  return true;
-}
-
-/*function isUploadTime() {
-  const now = new Date();
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-
-  if (hours === minutes) {
-    return true; // e.g., 10:10, 14:14
   }
 
-  if (hours === 11 || hours === 22) {
-    return true; // all minutes allowed in hour 11 or 22
+  window.onload = () => {
+    const savedName = localStorage.getItem('wish_username');
+    if (savedName) {
+      nameInputContainer.style.display = 'none';
+      uploadSection.style.display = 'block';
+    }
+    loadGallery();
+  };
+
+  function isUploadTime() {
+    return true;
   }
 
-  return false;
-}*/
+  photoInput.addEventListener('change', async (event) => {
+    if (!isUploadTime()) {
+      alert("Upload is only available at magical times!");
+      photoInput.value = '';
+      return;
+    }
+    const file = event.target.files[0];
+    if (!file) return;
 
-    photoInput.addEventListener('change', async (event) => {
-      if (!isUploadTime()) {
-        alert("Upload is only available at magical times!");
-        photoInput.value = '';
-        return;
-      }
-      const file = event.target.files[0];
-      if (!file) return;
+    const img = new Image();
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+      img.onload = async () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 800;
+        const scale = MAX_WIDTH / img.width;
+        canvas.width = MAX_WIDTH;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext('2d');
 
-      const img = new Image();
-      const reader = new FileReader();
-      reader.onload = async function(e) {
-        img.onload = async () => {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 800;
-          const scale = MAX_WIDTH / img.width;
-          canvas.width = MAX_WIDTH;
-          canvas.height = img.height * scale;
-          const ctx = canvas.getContext('2d');
+        // Mirror image
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-          // Mirror image
-          ctx.translate(canvas.width, 0);
-          ctx.scale(-1, 1);
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        // Reset transform
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-          // Add text
-          const name = localStorage.getItem('wish_username') || "Unknown";
-          const now = new Date();
-          const time = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        // Add text stamps
+        const name = localStorage.getItem('wish_username') || "Unknown";
+        const now = new Date();
+        const time = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
-          ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
-          ctx.font = 'bold 32px Helvetica, Arial';
-          ctx.fillStyle = 'white';
-          ctx.globalAlpha = 0.85;
-          ctx.fillText(name, 20, canvas.height - 20);
-          ctx.fillText(time, canvas.width - 120, canvas.height - 20);
-          ctx.globalAlpha = 1;
+        ctx.font = 'bold 36px Helvetica, Arial';
+        ctx.fillStyle = 'white';
+        ctx.globalAlpha = 0.5;
+        ctx.fillText(name, 20, canvas.height - 20);
+        ctx.fillText(time, canvas.width - 140, canvas.height - 20);
+        ctx.globalAlpha = 1;
 
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8); // compress
-          const entry = {
-            src: compressedDataUrl,
-            timestamp: now.getTime(),
-            readable: now.toLocaleTimeString('en-GB'),
-            name
-          };
-
-          let photos = JSON.parse(localStorage.getItem('wish_photos') || "[]");
-          photos.push(entry);
-          localStorage.setItem("wish_photos", JSON.stringify(photos));
-          lastUploadTime = Date.now();
-
-          photoInput.value = '';
-          loadGallery(true);
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8); // compress
+        const entry = {
+          src: compressedDataUrl,
+          timestamp: now.getTime(),
+          readable: now.toLocaleTimeString('en-GB'),
+          name
         };
-        img.src = e.target.result;
+
+        let photos = JSON.parse(localStorage.getItem('wish_photos') || "[]");
+        photos.push(entry);
+        localStorage.setItem("wish_photos", JSON.stringify(photos));
+        lastUploadTime = Date.now();
+
+        photoInput.value = '';
+        loadGallery(true);
       };
-      reader.readAsDataURL(file);
-    });
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
 
-    function loadGallery(justUploaded = false) {
-      let photos = JSON.parse(localStorage.getItem("wish_photos") || "[]");
-      const now = Date.now();
-      // Filter auf 24h
-      photos = photos.filter(p => now - p.timestamp < 24 * 60 * 60 * 1000);
-      localStorage.setItem("wish_photos", JSON.stringify(photos));
+  function loadGallery(justUploaded = false) {
+    let photos = JSON.parse(localStorage.getItem("wish_photos") || "[]");
+    const now = Date.now();
 
-      gallery.innerHTML = "";
+    // Keep only photos from last 24 hours
+    photos = photos.filter(p => now - p.timestamp < 24 * 60 * 60 * 1000);
+    localStorage.setItem("wish_photos", JSON.stringify(photos));
 
-      if (photos.length === 0) {
-        gallerySection.style.display = 'none';
-        uploadUnlockBtn.style.display = 'none';
-        return;
-      }
+    gallery.innerHTML = "";
 
-      gallerySection.style.display = 'block';
+    if (photos.length === 0) {
+      gallerySection.style.display = 'none';
+      uploadUnlockBtn.style.display = 'none';
+      return;
+    }
 
-      // Prüfen, ob Galerie entsperrt bleiben soll (2 min Sichtbarkeit nach Upload)
-      const unlockDuration = 2 * 60 * 1000; // 2 Minuten in ms
-      const unlocked = lastUploadTime && (now - lastUploadTime < unlockDuration);
+    gallerySection.style.display = 'block';
+
+    const unlockDuration = 2 * 60 * 1000;
+    const unlocked = lastUploadTime && (now - lastUploadTime < unlockDuration);
+
+    if (unlocked) {
+      gallery.classList.remove('blurred');
+      uploadUnlockBtn.style.display = 'none';
+      uploadSection.style.display = 'block';
+    } else {
+      gallery.classList.add('blurred');
+      uploadUnlockBtn.style.display = 'block';
+      uploadSection.style.display = 'none';
+    }
+
+    photos.forEach((p, index) => {
+      const wrapper = document.createElement("div");
+      wrapper.className = "photo-frame";
+
+      const img = document.createElement("img");
+      img.src = p.src;
+      wrapper.appendChild(img);
 
       if (unlocked) {
-        gallery.classList.remove('blurred');
-        uploadUnlockBtn.style.display = 'none';
-        uploadSection.style.display = 'block';
-      } else {
-        gallery.classList.add('blurred');
-        uploadUnlockBtn.style.display = 'block';
-        uploadSection.style.display = 'none';
+        const dlBtn = document.createElement("button");
+        dlBtn.id = "downloadBtn";
+        dlBtn.textContent = "Download";
+        dlBtn.onclick = () => {
+          const link = document.createElement('a');
+          link.href = p.src;
+          link.download = `wish_${index + 1}.jpg`;
+          link.click();
+        };
+        wrapper.appendChild(dlBtn);
       }
 
-      photos.forEach((p, index) => {
-        const wrapper = document.createElement("div");
-        wrapper.className = "photo-frame";
+      gallery.appendChild(wrapper);
+    });
 
-        const img = document.createElement("img");
-        img.src = p.src;
-
-        // Download Button nur wenn unlocked
-        if (unlocked) {
-          const dlBtn = document.createElement("button");
-          dlBtn.id = "downloadBtn";
-          dlBtn.textContent = "Download";
-          dlBtn.onclick = () => {
-            const link = document.createElement('a');
-            link.href = p.src;
-            link.download = `wish_${index + 1}.jpg`;
-            link.click();
-          };
-          wrapper.appendChild(dlBtn);
-        }
-
-        gallery.appendChild(wrapper);
-      });
-
-      if (justUploaded) {
-        // Setze lastUploadTime
-        lastUploadTime = Date.now();
-        setTimeout(() => {
-          loadGallery();
-        }, 2 * 60 * 1000); // nach 2 min reload für blur & button wechsel
-      }
+    if (justUploaded) {
+      lastUploadTime = Date.now();
+      setTimeout(() => {
+        loadGallery();
+      }, 2 * 60 * 1000);
     }
+  }
 
-    function unlockUpload() {
-      if (!isUploadTime()) {
-        alert("Upload is only available at magical times.");
-        return;
-      }
-      uploadSection.style.display = 'block';
-      uploadUnlockBtn.style.display = 'none';
-      photoInput.focus();
+  function unlockUpload() {
+    if (!isUploadTime()) {
+      alert("Upload is only available at magical times.");
+      return;
     }
-  </script>
+    uploadSection.style.display = 'block';
+    uploadUnlockBtn.style.display = 'none';
+    photoInput.focus();
+  }
+</script>
 </body>
 </html>
