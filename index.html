@@ -89,40 +89,42 @@
       pointer-events: none;
     }
 
-    .stamp-container {
-      width: 100%;
-      margin-top: 6px;
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      font-family: monospace;
-      font-size: 14px;
-      color: rgb(0,0,255);
-    }
+.stamp-container {
+  width: 100%;
+  margin-top: 6px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  font-family: monospace;
+  font-size: 14px;
+  color: rgb(0, 0, 255);
+  align-items: center; /* Vertikal ausrichten */
+}
 
-    #downloadBtn {
-      position: relative;
-      font-family: monospace;
-      padding: 4px 8px;
-      font-size: 12px;
-      cursor: pointer;
-      background: white;
-      border: 1px solid rgb(0,0,255);
-      border-radius: 4px;
-      box-shadow: 1px 1px 0px #999;
-    }
+#downloadBtn {
+  position: relative;
+  font-family: monospace;
+  padding: 4px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  background: white;
+  border: 1px solid rgb(0, 0, 255);
+  border-radius: 4px;
+  box-shadow: 1px 1px 0px #999;
+  white-space: nowrap; /* Damit Text nicht umbrechen kann */
+}
 
-    #uploadUnlockBtn {
-      margin-top: 15px;
-      padding: 8px 12px;
-      font-family: monospace;
-      background: white;
-      border: 2px solid rgb(0, 0, 255);
-      box-shadow: 2px 2px 0px #999;
-      cursor: pointer;
-      display: none;
-      border-radius: 8px;
-    }
+#uploadUnlockBtn {
+  margin-top: 15px;
+  padding: 8px 12px;
+  font-family: monospace;
+  background: white;
+  border: 2px solid rgb(0, 0, 255);
+  box-shadow: 2px 2px 0px #999;
+  cursor: pointer;
+  display: none;
+  border-radius: 8px;
+}
   </style>
 </head>
 <body>
@@ -279,29 +281,38 @@
       uploadSection.style.display = 'none';
     }
 
-    photos.forEach((p, index) => {
-      const wrapper = document.createElement("div");
-      wrapper.className = "photo-frame";
+photos.forEach((p, index) => {
+  const wrapper = document.createElement("div");
+  wrapper.className = "photo-frame";
 
-      const img = document.createElement("img");
-      img.src = p.src;
-      wrapper.appendChild(img);
+  const img = document.createElement("img");
+  img.src = p.src;
+  wrapper.appendChild(img);
 
-      if (unlocked) {
-        const dlBtn = document.createElement("button");
-        dlBtn.id = "downloadBtn";
-        dlBtn.textContent = "Download";
-        dlBtn.onclick = () => {
-          const link = document.createElement('a');
-          link.href = p.src;
-          link.download = `wish_${index + 1}.jpg`;
-          link.click();
-        };
-        wrapper.appendChild(dlBtn);
-      }
+  if (unlocked) {
+    const stampContainer = document.createElement("div");
+    stampContainer.className = "stamp-container";
 
-      gallery.appendChild(wrapper);
-    });
+    const timeSpan = document.createElement("span");
+    timeSpan.textContent = p.readable;  // der lesbare Zeit-String
+    stampContainer.appendChild(timeSpan);
+
+    const dlBtn = document.createElement("button");
+    dlBtn.id = "downloadBtn";
+    dlBtn.textContent = "Download";
+    dlBtn.onclick = () => {
+      const link = document.createElement('a');
+      link.href = p.src;
+      link.download = `wish_${index + 1}.jpg`;
+      link.click();
+    };
+    stampContainer.appendChild(dlBtn);
+
+    wrapper.appendChild(stampContainer);
+  }
+
+  gallery.appendChild(wrapper);
+});
 
     if (justUploaded) {
       lastUploadTime = Date.now();
