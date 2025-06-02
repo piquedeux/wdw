@@ -336,15 +336,16 @@
     }
   }
 
-  function unlockUpload() {
-    if (!isUploadTime()) {
-      alert("Upload is only allowed at magical times.");
-      return;
-    }
-    uploadSection.style.display = 'block';
-    uploadUnlockBtn.style.display = 'none';
-    photoInput.focus();
+function unlockUpload() {
+  if (!isUploadTime()) {
+    alert("Upload is only allowed at magical times.");
+    return;
   }
+  uploadSection.style.display = 'block';
+  uploadUnlockBtn.style.display = 'none';
+  photoInput.focus();
+  photoInput.click();
+}
 </script>
 </body>
 </html>
