@@ -289,25 +289,20 @@ photos.forEach((p, index) => {
   img.src = p.src;
   wrapper.appendChild(img);
 
-if (unlocked) {
-  const stampContainer = document.createElement("div");
-  stampContainer.className = "stamp-container";
-
-  const timeSpan = document.createElement("span");
-  timeSpan.textContent = p.readable;
-  stampContainer.appendChild(timeSpan);
-
-  const dlBtn = document.createElement("button");
-  dlBtn.id = "downloadBtn";
-  dlBtn.textContent = "Download";
-  dlBtn.onclick = () => {
-    window.open(p.src, '_blank');
-    alert("Press and hold on the image to save.");
-  };
-  stampContainer.appendChild(dlBtn);
-
-  wrapper.appendChild(stampContainer);
-}
+dlBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  const newTab = window.open();
+  if (newTab) {
+    newTab.document.body.style.margin = "0";
+    newTab.document.body.style.background = "#000";
+    newTab.document.body.innerHTML = `
+      <img src="${p.src}" style="width:100%;height:auto;display:block;margin:auto;" />
+      <p style="color:white;text-align:center;font-family:monospace;margin:20px;">Press and hold to save</p>
+    `;
+  } else {
+    alert("Popup blocked! Please allow popups for this site.");
+  }
+});
 
   gallery.appendChild(wrapper);
 });
