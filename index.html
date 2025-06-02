@@ -289,27 +289,25 @@ photos.forEach((p, index) => {
   img.src = p.src;
   wrapper.appendChild(img);
 
-  if (unlocked) {
-    const stampContainer = document.createElement("div");
-    stampContainer.className = "stamp-container";
+if (unlocked) {
+  const stampContainer = document.createElement("div");
+  stampContainer.className = "stamp-container";
 
-    const timeSpan = document.createElement("span");
-    timeSpan.textContent = p.readable;  // der lesbare Zeit-String
-    stampContainer.appendChild(timeSpan);
+  const timeSpan = document.createElement("span");
+  timeSpan.textContent = p.readable;
+  stampContainer.appendChild(timeSpan);
 
-    const dlBtn = document.createElement("button");
-    dlBtn.id = "downloadBtn";
-    dlBtn.textContent = "Download";
-    dlBtn.onclick = () => {
-      const link = document.createElement('a');
-      link.href = p.src;
-      link.download = `wish_${index + 1}.jpg`;
-      link.click();
-    };
-    stampContainer.appendChild(dlBtn);
+  const dlBtn = document.createElement("button");
+  dlBtn.id = "downloadBtn";
+  dlBtn.textContent = "Download";
+  dlBtn.onclick = () => {
+    window.open(p.src, '_blank');
+    alert("Press and hold on the image to save.");
+  };
+  stampContainer.appendChild(dlBtn);
 
-    wrapper.appendChild(stampContainer);
-  }
+  wrapper.appendChild(stampContainer);
+}
 
   gallery.appendChild(wrapper);
 });
