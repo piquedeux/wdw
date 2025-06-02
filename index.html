@@ -228,25 +228,44 @@
         // Reset transform
         ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-        // Stamp
-        const name = localStorage.getItem('wish_username') || "Unknown";
-        const now = new Date();
-        const time = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+// Helper function to draw text with custom letter spacing
+function drawTextWithSpacing(ctx, text, x, y, spacing, align = 'left') {
+    const chars = text.split('');
+    const totalWidth = chars.reduce((sum, char) => sum + ctx.measureText(char).width, 0) + spacing * (chars.length - 1);
+    
+    if (align === 'right') {
+        x -= totalWidth;
+    }
 
-        ctx.font = 'bold 64px Helvetica, Arial';
-        ctx.fillStyle = 'white';
-        ctx.globalAlpha = 0.8;
-        ctx.fillText(name, 40, canvas.height - 60);
-        ctx.fillText(time, canvas.width - 280, canvas.height - 60);
-        ctx.globalAlpha = 1;
+    for (let i = 0; i < chars.length; i++) {
+        const char = chars[i];
+        ctx.fillText(char, x, y);
+        x += ctx.measureText(char).width + spacing;
+    }
+}
 
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-        const entry = {
-          src: compressedDataUrl,
-          timestamp: now.getTime(),
-          readable: now.toLocaleTimeString('en-GB'),
-          name
-        };
+// Stamp
+const name = localStorage.getItem('wish_username') || "Unknown";
+const now = new Date();
+const time = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+ctx.font = 'bold 98px Helvetica, Arial';
+ctx.fillStyle = 'white';
+ctx.globalAlpha = 0.8;
+
+drawTextWithSpacing(ctx, name, 40, canvas.height - 60, -2); // Reduced spacing
+drawTextWithSpacing(ctx, time, canvas.width - 40, canvas.height - 60, -2, 'right'); // Right-align
+
+ctx.globalAlpha = 1;
+
+// Compress and store
+const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+const entry = {
+  src: compressedDataUrl,
+  timestamp: now.getTime(),
+  readable: now.toLocaleTimeString('en-GB'),
+  name
+};
 
         let photos = JSON.parse(localStorage.getItem('wish_photos') || "[]");
         photos.push(entry);
