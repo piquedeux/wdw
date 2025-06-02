@@ -187,7 +187,16 @@ function isUploadTime() {
   const now = new Date();
   const hours = now.getHours();
   const minutes = now.getMinutes();
-  return hours === minutes;
+
+  if (hours === minutes) {
+    return true; // e.g., 10:10, 14:14
+  }
+
+  if (hours === 11 || hours === 22) {
+    return true; // all minutes allowed in hour 11 or 22
+  }
+
+  return false;
 }
 
     // Erlaubt Upload nur zur Minute 10 jeder Stunde
@@ -332,7 +341,7 @@ function isUploadTime() {
 
     function unlockUpload() {
       if (!isUploadTime()) {
-        alert("Upload ist nur zur Minute xx:10 jeder Stunde erlaubt.");
+        alert("Upload is only available at magical times.");
         return;
       }
       uploadSection.style.display = 'block';
