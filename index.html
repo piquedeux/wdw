@@ -176,11 +176,10 @@
       }
     }
 
-    function isWishTime() {
-      const now = new Date();
-      return now.getHours() === now.getMinutes();
-      // For testing, comment above and use: return true;
-    }
+  function isWishTime() {
+    // for testing, always true, replace with your own rules
+    return true;
+}
 
     function checkTimeAndShow() {
       const name = localStorage.getItem("wish_name");
