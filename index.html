@@ -29,6 +29,11 @@
     #clock {
       margin-bottom: 1em;
     }
+    
+    .hint {
+      font-size: 0.5em;
+      letter-spacing: -0.05em;
+      }
 
     input[type="text"] {
       padding: 5px;
@@ -128,7 +133,7 @@
 <body>
   <div class="container">
     <h1>Wish Time</h1>
-    <div id="clock"><span> -->Posting is only possible on XX:XX, YY:YY, XY:XY</div>
+    <div id="clock"></div><span class="hint">You can only post on XX:XX, YY:YY, XY:XY</span>
 
     <div id="nameInputContainer">
       <input type="text" id="username" placeholder="Your Name (e.g. Moonkid)">
