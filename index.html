@@ -2,237 +2,240 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Wish Time</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
-      background: #dcdcdc;
+      margin: 0;
+      background: #ccc;
       font-family: 'Courier New', monospace;
-      color: #000;
-      padding: 1rem;
+      color: rgb(0, 0, 255);
     }
+
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #f5f5f5;
+      box-shadow: 4px 4px 0px #999;
+    }
+
     h1 {
-      font-size: 2em;
+      font-size: 1.5em;
       margin-bottom: 0.5em;
     }
+
     #clock {
       margin-bottom: 1em;
     }
-    input, button {
-      font-family: 'Courier New', monospace;
-      padding: 0.5em;
-      border: none;
-      background: #fff;
-      color: #000;
-      margin: 0.25em 0;
-      box-shadow: 2px 2px 0 #000;
+
+    input[type="text"] {
+      padding: 5px;
+      font-family: monospace;
+      width: 100%;
+      margin-bottom: 10px;
     }
-    #uploadSection {
-      margin-top: 1em;
+
+    button {
+      padding: 8px 12px;
+      font-family: monospace;
+      background: white;
+      border: 2px solid rgb(0, 0, 255);
+      box-shadow: 2px 2px 0px #999;
+      cursor: pointer;
     }
-    .gallery-item {
-      margin-top: 1em;
+
+    #previewContainer, #gallery {
+      margin-top: 20px;
+    }
+
+    .photo-frame {
+      background: white;
+      padding: 10px;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
       position: relative;
+      display: inline-block;
     }
-    .gallery-meta {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.8em;
-      letter-spacing: -0.5px;
-      margin-top: 0.2em;
-    }
-    .preview {
+
+    .photo-frame img {
       max-width: 100%;
-      margin-top: 1em;
+      display: block;
     }
-    .hide {
-      display: none;
+
+    .stamp {
+      position: absolute;
+      color: white;
+      font-family: Helvetica, Arial, sans-serif;
+      font-weight: bold;
+      opacity: 0.85;
+      font-size: 16px;
+      letter-spacing: -0.5px;
+      text-shadow: 1px 1px 2px black;
     }
-    .download-btn {
-      margin-top: 0.25em;
-      font-size: 0.8em;
+
+    .stamp.username {
+      bottom: 10px;
+      left: 10px;
+    }
+
+    .stamp.time {
+      bottom: 10px;
+      right: 10px;
+    }
+
+    #photoInput {
+      display: block;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>Wish Time</h1>
-  <div id="clock"></div>
+  <div class="container">
+    <h1>Wish Time</h1>
+    <div id="clock"></div>
 
-  <div id="nameInputContainer">
-    <input type="text" id="username" placeholder="Enter your name" />
-    <button onclick="saveName()">Start</button>
-  </div>
+    <div id="nameInputContainer">
+      <input type="text" id="username" placeholder="Your Name (e.g. Moonkid)">
+      <button onclick="saveName()">Start</button>
+    </div>
 
-  <div id="uploadSection" class="hide">
-    <p id="uploadStatus">Waiting for a wish time like 10:10, 11:11…</p>
-    <input type="file" accept="image/*" capture="environment" id="photoInput" onchange="handlePhoto(event)" />
-    <img id="preview" class="preview hide" />
-    <button id="removeBtn" class="hide" onclick="removePreview()">Remove</button>
-  </div>
+    <div id="uploadSection" style="display:none;">
+      <input type="file" accept="image/*" capture="environment" id="photoInput">
+    </div>
 
-  <div id="gallerySection" class="hide">
-    <h2>Your Wish Photos</h2>
-    <div id="gallery"></div>
+    <div id="previewContainer"></div>
+    <div id="gallerySection" style="display:none;">
+      <h2>Your Wishes</h2>
+      <div id="gallery"></div>
+    </div>
   </div>
 
   <script>
-    const clock = document.getElementById("clock");
-    const uploadSection = document.getElementById("uploadSection");
-    const gallerySection = document.getElementById("gallerySection");
-    const gallery = document.getElementById("gallery");
-    const preview = document.getElementById("preview");
-    const removeBtn = document.getElementById("removeBtn");
-    const photoInput = document.getElementById("photoInput");
-
-    let galleryVisibleUntil = 0;
-    let currentPreview = null;
+    const usernameInput = document.getElementById('username');
+    const nameInputContainer = document.getElementById('nameInputContainer');
+    const uploadSection = document.getElementById('uploadSection');
+    const photoInput = document.getElementById('photoInput');
+    const previewContainer = document.getElementById('previewContainer');
+    const gallery = document.getElementById('gallery');
+    const gallerySection = document.getElementById('gallerySection');
+    const clock = document.getElementById('clock');
 
     function updateClock() {
       const now = new Date();
-      clock.textContent = now.toLocaleTimeString();
-      checkTimeAndShow();
+      clock.textContent = now.toLocaleTimeString('en-GB');
     }
     setInterval(updateClock, 1000);
+    updateClock();
 
     function saveName() {
-      const name = document.getElementById("username").value.trim();
+      const name = usernameInput.value.trim();
       if (name) {
-        localStorage.setItem("wish_name", name);
-        document.getElementById("nameInputContainer").style.display = "none";
-        checkTimeAndShow();
+        localStorage.setItem('wish_username', name);
+        nameInputContainer.style.display = 'none';
+        uploadSection.style.display = 'block';
       }
     }
 
-    function isWishTime() {
-      const now = new Date();
-      return now.getHours() === now.getMinutes(); // e.g. 10:10, 11:11
-    }
-
-    function checkTimeAndShow() {
-      const name = localStorage.getItem("wish_name");
-      if (!name) return;
-
-      const statusText = document.getElementById("uploadStatus");
-      const now = Date.now();
-
-      uploadSection.classList.remove("hide");
-      if (isWishTime()) {
-        statusText.textContent = "It's Wish Time! Take a photo!";
-      } else {
-        statusText.textContent = "Waiting for a wish time like 10:10, 11:11…";
+    window.onload = () => {
+      const savedName = localStorage.getItem('wish_username');
+      if (savedName) {
+        nameInputContainer.style.display = 'none';
+        uploadSection.style.display = 'block';
       }
+      loadGallery();
+    };
 
-      if (now < galleryVisibleUntil) {
-        gallerySection.classList.remove("hide");
-        showGallery();
-      } else {
-        gallerySection.classList.add("hide");
-      }
-    }
-
-    function removePreview() {
-      currentPreview = null;
-      preview.src = "";
-      preview.classList.add("hide");
-      removeBtn.classList.add("hide");
-    }
-
-    function handlePhoto(event) {
+    photoInput.addEventListener('change', async (event) => {
       const file = event.target.files[0];
       if (!file) return;
 
-      const name = localStorage.getItem("wish_name");
+      const img = new Image();
       const reader = new FileReader();
-      reader.onload = function (e) {
-        const img = new Image();
-        img.onload = function () {
-          const canvas = document.createElement("canvas");
-          canvas.width = img.width;
-          canvas.height = img.height;
-          const ctx = canvas.getContext("2d");
+      reader.onload = async function(e) {
+        img.onload = async () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800;
+          const scale = MAX_WIDTH / img.width;
+          canvas.width = MAX_WIDTH;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext('2d');
 
-          // mirror image
+          // Mirror image
           ctx.translate(canvas.width, 0);
           ctx.scale(-1, 1);
-          ctx.drawImage(img, 0, 0);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-          // reset transform to add non-mirrored text
-          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          // Add text
+          const name = localStorage.getItem('wish_username') || "Unknown";
+          const now = new Date();
+          const time = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 
-          const time = new Date();
-          const timestamp = time.toLocaleTimeString("en-GB", { hour: '2-digit', minute: '2-digit' });
-          const fullTime = time.toLocaleTimeString("en-GB");
-
-          ctx.font = "bold 32px Helvetica, Arial, sans-serif";
-          ctx.fillStyle = "rgba(255,255,255,0.5)";
-          ctx.textBaseline = "bottom";
+          ctx.setTransform(1, 0, 0, 1, 0, 0); // reset transform
+          ctx.font = 'bold 32px Helvetica, Arial';
+          ctx.fillStyle = 'white';
+          ctx.globalAlpha = 0.85;
+          ctx.textShadow = '1px 1px 2px black';
           ctx.fillText(name, 20, canvas.height - 20);
-          ctx.textAlign = "right";
-          ctx.fillText(timestamp, canvas.width - 20, canvas.height - 20);
+          ctx.fillText(time, canvas.width - 120, canvas.height - 20);
+          ctx.globalAlpha = 1;
 
-          const finalImage = canvas.toDataURL("image/jpeg", 0.8);
-          preview.src = finalImage;
-          preview.classList.remove("hide");
-          removeBtn.classList.remove("hide");
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8); // compress
+          const entry = {
+            src: compressedDataUrl,
+            timestamp: now.getTime(),
+            readable: now.toLocaleTimeString('en-GB'),
+            name
+          };
 
-          const photos = getPhotos();
-          photos.push({ src: finalImage, name, time: fullTime, retake: photos.length > 0 });
+          let photos = JSON.parse(localStorage.getItem('wish_photos') || "[]");
+          photos.push(entry);
           localStorage.setItem("wish_photos", JSON.stringify(photos));
 
-          galleryVisibleUntil = Date.now() + 2 * 60 * 1000;
-          showGallery();
-          gallerySection.classList.remove("hide");
+          photoInput.value = '';
+          previewContainer.innerHTML = '';
+          loadGallery(true);
         };
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
+    });
 
-      // reset input
-      event.target.value = "";
-    }
+    function loadGallery(justUploaded = false) {
+      let photos = JSON.parse(localStorage.getItem("wish_photos") || "[]");
+      const now = Date.now();
+      photos = photos.filter(p => now - p.timestamp < 24 * 60 * 60 * 1000);
+      localStorage.setItem("wish_photos", JSON.stringify(photos));
 
-    function getPhotos() {
-      const all = JSON.parse(localStorage.getItem("wish_photos") || "[]");
-      const recent = all.filter(p => Date.now() - new Date(p.time).getTime() < 24 * 60 * 60 * 1000);
-      localStorage.setItem("wish_photos", JSON.stringify(recent));
-      return recent;
-    }
+      if (justUploaded) {
+        gallerySection.style.display = 'block';
+        setTimeout(() => {
+          gallerySection.style.display = 'none';
+        }, 2 * 60 * 1000); // 2 minutes
+      }
 
-    function showGallery() {
-      const photos = getPhotos();
       gallery.innerHTML = "";
       photos.forEach(p => {
         const wrapper = document.createElement("div");
-        wrapper.className = "gallery-item";
+        wrapper.className = "photo-frame";
 
         const img = document.createElement("img");
         img.src = p.src;
-        img.className = "preview";
 
-        const meta = document.createElement("div");
-        meta.className = "gallery-meta";
-        meta.innerHTML = `<span>${p.name}${p.retake ? " (Retake)" : ""}</span><span>${p.time}</span>`;
+        const usernameStamp = document.createElement("div");
+        usernameStamp.className = "stamp username";
+        usernameStamp.textContent = p.name;
 
-        const dl = document.createElement("a");
-        dl.href = p.src;
-        dl.download = "wish-photo.jpg";
-        dl.textContent = "Download";
-        dl.className = "download-btn";
+        const timeStamp = document.createElement("div");
+        timeStamp.className = "stamp time";
+        timeStamp.textContent = p.readable;
 
         wrapper.appendChild(img);
-        wrapper.appendChild(meta);
-        wrapper.appendChild(dl);
+        wrapper.appendChild(usernameStamp);
+        wrapper.appendChild(timeStamp);
         gallery.appendChild(wrapper);
       });
     }
-
-    window.onload = () => {
-      const name = localStorage.getItem("wish_name");
-      if (name) {
-        document.getElementById("nameInputContainer").style.display = "none";
-        checkTimeAndShow();
-      }
-    };
   </script>
 </body>
 </html>
