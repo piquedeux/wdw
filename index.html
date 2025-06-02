@@ -182,8 +182,12 @@
       }
       loadGallery();
     };
-
+    
 function isUploadTime() {
+  return true;
+}
+
+/*function isUploadTime() {
   const now = new Date();
   const hours = now.getHours();
   const minutes = now.getMinutes();
@@ -197,9 +201,8 @@ function isUploadTime() {
   }
 
   return false;
-}
+}*/
 
-    // Erlaubt Upload nur zur Minute 10 jeder Stunde
     photoInput.addEventListener('change', async (event) => {
       if (!isUploadTime()) {
         alert("Upload is only available at magical times!");
@@ -296,22 +299,6 @@ function isUploadTime() {
 
         const img = document.createElement("img");
         img.src = p.src;
-
-        // Stamps Container mit timestamp & username nebeneinander rechts unten
-        const stampContainer = document.createElement("div");
-        stampContainer.className = "stamp-container";
-
-        const timeStamp = document.createElement("div");
-        timeStamp.textContent = p.readable;
-
-        const usernameStamp = document.createElement("div");
-        usernameStamp.textContent = p.name;
-
-        stampContainer.appendChild(timeStamp);
-        stampContainer.appendChild(usernameStamp);
-
-        wrapper.appendChild(img);
-        wrapper.appendChild(stampContainer);
 
         // Download Button nur wenn unlocked
         if (unlocked) {
