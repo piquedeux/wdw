@@ -302,7 +302,7 @@ const entry = {
 
     gallerySection.style.display = 'block';
 
-    const unlockDuration = 2 * 60 * 1000;
+const unlockDuration = 20 * 60 * 1000; // 20 Minuten in Millisekunden
     const unlocked = lastUploadTime && (now - lastUploadTime < unlockDuration);
 
     if (unlocked) {
